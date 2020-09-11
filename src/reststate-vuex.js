@@ -244,6 +244,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('SET_STATUS', STATUS_SUCCESS);
             commit('STORE_RECORD', results.data);
             commit('STORE_META', results.meta);
+            commit('STORE_RESOURCE', results);
             storeIncluded({ commit, dispatch }, results);
           })
           .catch(handleError(commit));
