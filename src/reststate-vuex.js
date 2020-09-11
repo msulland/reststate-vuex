@@ -258,7 +258,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             const related = results.links.related.find(r => r.rel == rel).href;
             return client
               .fetch({url: related})
-              .then(results => {
+              .then((resource, data) => {
                 commit('SET_STATUS', STATUS_SUCCESS);
                 commit('STORE_RECORD', results.data);
                 commit('STORE_META', results.meta);
