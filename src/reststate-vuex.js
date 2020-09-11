@@ -110,6 +110,7 @@ const initialState = () => ({
   links: {},
   lastCreated: null,
   lastMeta: null,
+  resource: null
 });
 
 const resourceModule = ({ name: resourceName, httpClient }) => {
@@ -152,6 +153,11 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       STORE_RECORDS: (state, newRecords) => {
         const { records } = state;
         newRecords.forEach(storeRecord(records));
+      },
+
+      STORE_RESOURCE:(state, resource) => {
+        console.log(resource);
+        state.resource = resource;
       },
 
       STORE_PAGE: (state, records) => {
@@ -220,14 +226,14 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
 
       /* eslint no-unused-vars: ["error", { "args": "none" }] */
-      loadBySelf({commit, dispatch}, {resource}){
+      loadBySelf({commit, dispatch}, {resource, filters}){
         const self = resource.links.self;
         commit('SET_STATUS', STATUS_LOADING);
         return client
-          .fetch({ url: self })
+          .fetch({ url: self, filters: filters })
           .then(results => {
             commit('SET_STATUS', STATUS_SUCCESS);
-            commit('STORE_RECORD', results.data);
+            commit('REPLACE_ALL_RECORDS', results.data);
             commit('STORE_META', results.meta);
             storeIncluded({ commit, dispatch }, results);
           })
@@ -255,10 +261,12 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         return client
           .fetch()
           .then(results => {
+            console.log(results);
             const related = results.links.related.find(r => r.rel == rel).href;
             return client
               .fetch({url: related})
-              .then((resource, data) => {
+              .then(results => {
+                console.log(results);
                 commit('SET_STATUS', STATUS_SUCCESS);
                 commit('STORE_RECORD', results.data);
                 commit('STORE_META', results.meta);
@@ -476,6 +484,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       lastCreated: state => state.lastCreated,
       byId: state => ({ id }) => state.records.find(r => r.id == id),
       lastMeta: state => state.lastMeta,
+      resource: state => state.resource,
       page: state =>
         state.page.map(id => state.records.find(record => record.id === id)),
       where: state => params => {
