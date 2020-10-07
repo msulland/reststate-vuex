@@ -156,7 +156,6 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
 
       STORE_RESOURCE:(state, resource) => {
-        console.log(resource);
         state.resource = resource;
       },
 
@@ -242,7 +241,6 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       loadByRelationship({ commit, dispatch }, { resource, relationship }) {
         const url = resource.relationships[relationship].links.self;
-        console.log("Relationship " + url);
         commit('SET_STATUS', STATUS_LOADING);
         return client
           .fetch({ url: url })
@@ -261,12 +259,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         return client
           .fetch()
           .then(results => {
-            console.log(results);
             const related = results.links.related.find(r => r.rel == rel).href;
             return client
               .fetch({url: related})
               .then(results => {
-                console.log(results);
                 commit('SET_STATUS', STATUS_SUCCESS);
                 commit('STORE_RECORD', results.data);
                 commit('STORE_META', results.meta);
