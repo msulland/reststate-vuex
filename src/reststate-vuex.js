@@ -248,7 +248,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .fetch({ url: url })
           .then(results => {
             commit('SET_STATUS', STATUS_SUCCESS);
-            commit('STORE_RECORD', results.data);
+            commit('REPLACE_ALL_RECORDS', results.data);
             commit('STORE_META', results.meta);
             commit('STORE_RESOURCE', results);
             storeIncluded({ commit, dispatch }, results);
