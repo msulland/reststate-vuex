@@ -1,4 +1,4 @@
-import {ResourceClient} from '@reststate/client';
+import { ResourceClient } from '@reststate/client';
 import deepEquals from './deepEquals';
 
 const STATUS_INITIAL = 'INITIAL';
@@ -7,18 +7,24 @@ const STATUS_ERROR = 'ERROR';
 const STATUS_SUCCESS = 'SUCCESS';
 
 const storeRecord = records => newRecord => {
-  function insertRecord (newRecord){
-    const existingRecord = records.find(r => r.id === newRecord.id);
-    if (existingRecord) {
-      Object.assign(existingRecord, newRecord);
+  function insertRecord(newRecord) {
+    if(records !== undefined){
+      const existingRecord = records.find(r => r.id === newRecord.id);
+      if (existingRecord) {
+        Object.assign(existingRecord, newRecord);
+      } else {
+        records.push(newRecord);
+      }
     } else {
       records.push(newRecord);
     }
   }
 
-  if(Array.isArray(newRecord)) {
-    newRecord.forEach(r => { insertRecord(r); })
-  }else{
+  if (Array.isArray(newRecord)) {
+    newRecord.forEach(r => {
+      insertRecord(r);
+    });
+  } else {
     insertRecord(newRecord);
   }
 };
@@ -110,7 +116,7 @@ const initialState = () => ({
   links: {},
   lastCreated: null,
   lastMeta: null,
-  resource: null
+  resource: null,
 });
 
 const resourceModule = ({ name: resourceName, httpClient }) => {
@@ -155,7 +161,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         newRecords.forEach(storeRecord(records));
       },
 
-      STORE_RESOURCE:(state, resource) => {
+      STORE_RESOURCE: (state, resource) => {
         state.resource = resource;
       },
 
@@ -225,7 +231,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
 
       /* eslint no-unused-vars: ["error", { "args": "none" }] */
-      loadBySelf({commit, dispatch}, {resource, filters}){
+      loadBySelf({ commit, dispatch }, { resource, filters }) {
         const self = resource.links.self;
         commit('SET_STATUS', STATUS_LOADING);
         return client
@@ -254,23 +260,23 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .catch(handleError(commit));
       },
 
-      loadByRel({commit, dispatch}, {rel}) {
+      loadByRel({ commit, dispatch }, { rel }) {
         commit('SET_STATUS', STATUS_LOADING);
         return client
           .fetch()
           .then(results => {
-            const related = results.links.related.find(r => r.rel == rel).href;
+            const related = results.links.related.find(r => r.rel === rel).href;
             return client
-              .fetch({url: related})
+              .fetch({ url: related })
               .then(results => {
                 commit('SET_STATUS', STATUS_SUCCESS);
                 commit('STORE_RECORD', results.data);
                 commit('STORE_META', results.meta);
                 commit('STORE_RESOURCE', results);
-                storeIncluded({commit, dispatch}, results);
+                storeIncluded({ commit, dispatch }, results);
               })
               .catch(handleError(commit));
-            })
+          })
           .catch(handleError(commit));
       },
 
