@@ -8,7 +8,7 @@ const STATUS_SUCCESS = 'SUCCESS';
 
 const storeRecord = records => newRecord => {
   function insertRecord(newRecord) {
-    if (records !== undefined) {
+    if (records !== undefined && newRecord !== undefined) {
       const existingRecord = records.find(r => r.id === newRecord.id);
       if (existingRecord) {
         Object.assign(existingRecord, newRecord);
