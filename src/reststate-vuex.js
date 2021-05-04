@@ -260,7 +260,21 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           })
           .catch(handleError(commit));
       },
-
+      loadByRelated({ commit, dispatch }, { resource, relationship }) {
+        const url = resource.links.related.find(r => r.rel === relationship)
+          .href;
+        commit('SET_STATUS', STATUS_LOADING);
+        return client
+          .fetch({ url: url })
+          .then(results => {
+            commit('SET_STATUS', STATUS_SUCCESS);
+            commit('REPLACE_ALL_RECORDS', results.data);
+            commit('STORE_META', results.meta);
+            commit('STORE_RESOURCE', results);
+            storeIncluded({ commit, dispatch }, results);
+          })
+          .catch(handleError(commit));
+      },
       loadByRel({ commit, dispatch }, { rel }) {
         commit('SET_STATUS', STATUS_LOADING);
         return client
